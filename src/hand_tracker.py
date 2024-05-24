@@ -8,6 +8,7 @@ mpdrawing = mp.solutions.drawing_utils
 
 # Initialize video capture
 vidcap = cv2.VideoCapture(0)
+vidcap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 
 # Set the desired window width and height
 winwidth = 1080

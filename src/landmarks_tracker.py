@@ -6,6 +6,7 @@ mp_holistic = mp.solutions.holistic # Holistic model
 mp_drawing = mp.solutions.drawing_utils # Drawing utilities
 
 vidcap = cv2.VideoCapture(0)
+vidcap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 
 # Resize the requested image using a percentage(%) factor
 def resize_by(image, scale_factor):
