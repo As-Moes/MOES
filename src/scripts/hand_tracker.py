@@ -1,5 +1,6 @@
 import cv2
 import mediapipe as mp
+import numpy as np
 
 # Initialize mediapipe hands module
 mp_holistic = mp.solutions.holistic
@@ -18,6 +19,19 @@ def mediapipe_detection(image, model):
 def draw_landmarks(image, results):
     mp_drawing.draw_landmarks(image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
     mp_drawing.draw_landmarks(image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
+
+
+def extract_keypoints(image):
+    # Detect landmarks in image
+    with mp_holistic.Holistic(min_detection_confidence=0.9, min_tracking_confidence=0.9) as holistic:
+        _, results = mediapipe_detection(image, holistic)
+
+    # Extract landmarks from results
+    left_hand = np.array([[res.x, res.y, res.z] for res in results.left_hand_landmarks.landmark]).flatten() \
+        if results.left_hand_landmarks else np.zeros(21*3)
+    right_hand = np.array([[res.x, res.y, res.z] for res in results.right_hand_landmarks.landmark]).flatten() \
+        if results.right_hand_landmarks else np.zeros(21*3)
+    return np.concatenate([left_hand, right_hand])
 
 
 def track_hands(winwidth: int, winheight: int) -> None:
@@ -43,7 +57,3 @@ def track_hands(winwidth: int, winheight: int) -> None:
 
     vidcap.release()
     cv2.destroyAllWindows()
-
-
-if __name__ == "__main__":
-    track_hands(1080, 900)
