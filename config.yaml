@@ -1,0 +1,6 @@
+
+tasks:
+  PrepareData:
+    dataset_videos_path: "data/CrossDatasetVideos"
+    dataset_landmarks_path: "data/LandMarksDataset"
+      
