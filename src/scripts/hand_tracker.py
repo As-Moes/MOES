@@ -2,8 +2,8 @@ import cv2
 import mediapipe as mp
 
 # Initialize mediapipe hands module
-mphands   = mp.solutions.hands
-mpdrawing = mp.solutions.drawing_utils
+mp_holistic = mp.solutions.holistic
+mp_drawing = mp.solutions.drawing_utils
 
 
 def mediapipe_detection(image, model):
@@ -15,23 +15,24 @@ def mediapipe_detection(image, model):
     return image, results
 
 
+def draw_landmarks(image, results):
+    mp_drawing.draw_landmarks(image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
+    mp_drawing.draw_landmarks(image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
+
+
 def track_hands(winwidth: int, winheight: int) -> None:
     vidcap = cv2.VideoCapture(0)
     vidcap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 
-    with mphands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5) as hands:
+    with mp_holistic.Holistic(min_detection_confidence=0.9, min_tracking_confidence=0.9) as holistic:
         while vidcap.isOpened():
             ret, frame = vidcap.read()
             if not ret:
                 break
 
-            image, results = mediapipe_detection(frame, hands)
+            image, results = mediapipe_detection(frame, holistic)
 
-            # Draw landmarks on the frame
-            if results.multi_hand_landmarks:
-                for lm in results.multi_hand_landmarks:
-                    mpdrawing.draw_landmarks(
-                        image, lm, mphands.HAND_CONNECTIONS)
+            draw_landmarks(image, results)
 
             image = cv2.resize(image, (winwidth, winheight))
 
