@@ -1,13 +1,16 @@
+from typing import NamedTuple
+
 import cv2
 import mediapipe as mp
 import numpy as np
+from cv2.typing import MatLike
 
 # Initialize mediapipe hands module
 mp_holistic = mp.solutions.holistic
 mp_drawing = mp.solutions.drawing_utils
 
 
-def mediapipe_detection(image, model):
+def mediapipe_detection(image: MatLike, model) -> tuple[MatLike, NamedTuple]:
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     image.flags.writeable = False
     results = model.process(image)
@@ -16,12 +19,12 @@ def mediapipe_detection(image, model):
     return image, results
 
 
-def draw_landmarks(image, results):
+def draw_landmarks(image: MatLike, results: NamedTuple) -> None:
     mp_drawing.draw_landmarks(image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
     mp_drawing.draw_landmarks(image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
 
 
-def extract_keypoints(image):
+def extract_keypoints(image: MatLike) -> np.ndarray:
     # Detect landmarks in image
     with mp_holistic.Holistic(min_detection_confidence=0.9, min_tracking_confidence=0.9) as holistic:
         _, results = mediapipe_detection(image, holistic)
@@ -50,7 +53,7 @@ def track_hands(winwidth: int, winheight: int) -> None:
 
             image = cv2.resize(image, (winwidth, winheight))
 
-            cv2.imshow('Hand Tracking', cv2.flip(image, 1))
+            cv2.imshow('Hand Tracking', image)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
