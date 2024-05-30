@@ -76,6 +76,39 @@ def extract_keypoints(image: MatLike) -> np.ndarray:
     return np.concatenate([left_hand, right_hand])
 
 
+def angle_between(vec1: np.ndarray, vec2: np.ndarray) -> float:
+    u_vec1 = vec1 / np.linalg.norm(vec1)  # unit vector
+    u_vec2 = vec2 / np.linalg.norm(vec2)
+    cos = np.dot(u_vec1, u_vec2)
+    return np.arccos(cos)
+
+
+def extract_custom_features(results):
+    # with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
+    #     _, results = mediapipe_detection(image, holistic)
+
+    # CUSTOM FEATURE 1: HAND ANGLES
+    angles = []
+    for landmarks_list in [results.left_hand_landmarks, results.right_hand_landmarks]:
+        if not landmarks_list:  # hand not visible in frame
+            angles = np.concatenate([angles, np.zeros(26)])
+        else:
+            hand = [np.array([landmark.x, landmark.y, landmark.z])
+                    for landmark in landmarks_list.landmark]
+
+            # Compute connections (vectors)
+            hand_vectors = {conn: hand[conn[0]] - hand[conn[1]]
+                            for conn in mp_holistic.HAND_CONNECTIONS}
+
+            # Find the angle between all adjacent vectors
+            hand_angles = [angle_between(hand_vectors[vec1_idx], hand_vectors[vec2_idx])
+                           for (vec1_idx, vec2_idx) in HAND_ADJACENT_CONNECTIONS]
+
+            angles = np.concatenate([angles, hand_angles])
+
+    return angles
+
+
 def track_hands(winwidth: int, winheight: int) -> None:
     vidcap = cv2.VideoCapture(0)
     vidcap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
