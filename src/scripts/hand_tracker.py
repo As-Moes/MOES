@@ -38,6 +38,46 @@ HAND_ADJACENT_CONNECTIONS = [
     ((18, 19), (19, 20))
 ]
 
+DESIRED_DISTANCES = [
+    (0, 13),
+    (0, 14),
+    (0, 15),
+    (0, 16),
+    (11, 13),
+    (11, 14),
+    (11, 15),
+    (11, 16),
+    (12, 13),
+    (12, 14),
+    (12, 15),
+    (12, 16),
+    (13, 14),
+    (15, 16),
+    (15, 17),
+    (15, 18),
+    (15, 19),
+    (15, 20),
+    (16, 17),
+    (16, 18),
+    (16, 19),
+    (16, 20),
+    (17, 18),
+    (17, 19),
+    (17, 20),
+    (17, 21),
+    (17, 22),
+    (18, 19),
+    (18, 20),
+    (18, 21),
+    (18, 22),
+    (19, 20),
+    (19, 21),
+    (19, 22),
+    (20, 21),
+    (20, 22),
+    (21, 22)
+]
+
 
 # def find_adjacent_connections():
 #     adjacent = []
@@ -87,15 +127,15 @@ def angle_between(vec1: np.ndarray, vec2: np.ndarray) -> float:
     return np.arccos(cos)
 
 
-def extract_custom_features(results):
-    # with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
-    #     _, results = mediapipe_detection(image, holistic)
+def extract_custom_features(image: MatLike) -> np.ndarray:
+    with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
+        _, results = mediapipe_detection(image, holistic)
 
     # CUSTOM FEATURE 1: HAND ANGLES
     angles = []
     for landmarks_list in [results.left_hand_landmarks, results.right_hand_landmarks]:
         if not landmarks_list:  # hand not visible in frame
-            angles = np.concatenate([angles, np.zeros(26)])
+            angles.extend(list(np.zeros(26)))
         else:
             hand = [np.array([landmark.x, landmark.y, landmark.z])
                     for landmark in landmarks_list.landmark]
@@ -108,9 +148,46 @@ def extract_custom_features(results):
             hand_angles = [angle_between(hand_vectors[vec1_idx], hand_vectors[vec2_idx])
                            for (vec1_idx, vec2_idx) in HAND_ADJACENT_CONNECTIONS]
 
-            angles = np.concatenate([angles, hand_angles])
+            angles.extend(hand_angles)
 
-    return angles
+    # CUSTOM FEATURE 2: POSE DISTANCES
+    if results.pose_landmarks:
+        pose = [np.array([landmark.x, landmark.y, landmark.z])
+                for landmark in results.pose_landmarks.landmark]
+
+        # Extract max pose distance
+        central_pose = (pose[12] + pose[11]) / 2
+        dist_max_pose = max([np.linalg.norm(lm - central_pose) for lm in pose])
+
+        # Normalize all pose landmarks
+        pose = np.array([(lm - central_pose) / dist_max_pose for lm in pose])
+
+        """
+        Após os landmarks serem normalizados, escolheu-se as características a serem computa-
+        das. A seguir é exibida a lista de distâncias entre os landmarks escolhidos, sejam eles do lado
+        direito, do lado esquerdo ou cruzando os lados do corpo. Por exemplo, a distância entre o ombro
+        e pulso pode ser entre: i) ombro esquerdo e pulso esquerdo, ii) ombro esquerdo e pulso direito,
+        iii) ombro direito e pulso esquerdo, iv) ombro direito e pulso direito.
+        ∙ Nariz e pulso; -> (0,16) e (0,15)
+        ∙ Ombro e pulso; -> (12,16), (12,15), (11,16), (11,15)
+        ∙ Ombro e cotovelo; -> (12,14), (12,13), (11,14), (11,13)
+        ∙ Pulso e dedo mindinho; -> (15,17), (15,18), (16,17), (16,18)
+        ∙ Pulso e dedo indicador; -> (15,19), (15,20), (16,19), (16,20)
+        ∙ Dedo mindinho e dedo indicador; -> (17,19),(17,20),(18,19),(18,20)
+        ∙ Dedo polegar e dedo mindinho; -> (17,21), (17,22), (18,21), (18,22)
+        ∙ Dedo polegar e dedo indicador; -> (19,21), (20,21), (19,22), (20,22)
+        ∙ Dedo polegar esquerdo e dedo polegar direito; -> (21,22)
+        ∙ Dedo indicador esquerdo e dedo indicador direito; -> (19,20)
+        ∙ Dedo mindinho esquerdo e dedo mindinho direito; -> (17,18)
+        ∙ Pulso esquerdo e pulso direito; -> (15,16)
+        ∙ Cotovelo esquerdo e cotovelo direito; -> (13,14)
+        - nariz e cotovelo -> (0,14) e (0,13)
+        """
+        # Compute pose distances
+        distances = [np.linalg.norm(pose[idx1] - pose[idx2])
+                     for (idx1, idx2) in DESIRED_DISTANCES]
+
+    return np.concatenate([angles, distances])
 
 
 def track_hands(winwidth: int, winheight: int) -> None:
