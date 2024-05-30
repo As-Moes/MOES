@@ -1,6 +1,6 @@
 
 tasks:
-  PrepareData:
+  ProcessVideos:
     dataset_videos_path: "data/CrossDatasetVideos"
-    dataset_landmarks_path: "data/LandMarksDataset"
+    dataset_frames_path: "data/CrossDatasetFrames"
       

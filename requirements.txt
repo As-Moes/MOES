@@ -26,3 +26,5 @@ six==1.16.0
 sounddevice==0.4.6
 fabric
 pyyaml
+pandas
+tqdm

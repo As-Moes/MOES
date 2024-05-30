@@ -2,12 +2,16 @@
 import cv2
 import os
 import numpy as np
+import pandas as pd
 
+from tqdm import tqdm
 from ..utils import utils_files
 from ..utils import utils_cv
 
+#-----------------------------------------------------------------------------------
+
 # Sample frames from a video using a normal distribution
-def sample_frames_from_video(video_path, num_samples=15):
+def sample_frames(video_path, num_samples=15):
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
         raise ValueError("Error opening video file")
@@ -46,7 +50,15 @@ def sample_frames_from_video(video_path, num_samples=15):
     # Release the video capture object
     cap.release()
     return frames
- 
+
+# Resize all frames
+def resize_frames(frames, new_size):
+    resized_frames = []  
+    for frame in frames:
+        resized_frame = utils_cv.resize_to(frame, new_size)
+        resized_frames.append(resized_frame)
+    return resized_frames 
+
 # Augment data using flip, rotation and translation
 # Important to keep consistency within frames 
 def augment_frames(frames, augment_factor):
@@ -73,33 +85,62 @@ def augment_frames(frames, augment_factor):
             translated_frame         = cv2.warpAffine(rotated_frame, translation_matrix, (cols, rows))
 
             modified_frames.append(translated_frame)
-        
+       
         augmented_frames.append(modified_frames)
-        
+    
     return augmented_frames
 
-# Resize all frames
-def resize_frames(frames_collection, new_size):
-    resized_frames_collection = []    
-    for frames in frames_collection:
-        resized_frames = []
-        for frame in frames:
-            resized_frame = utils_cv.resize_to(frame, new_size)
-            # utils_cv.show(resized_frame)
-            resized_frames.append(resized_frame)
-        resized_frames_collection.append(resized_frames)
-    return resized_frames_collection
+#-----------------------------------------------------------------------------------
 
-# Convert videos dataset to landmarks dataset
-def convert_videos_to_csv(dataset_videos_path, dataset_landmarks_path, show=False):
+# Display all frames
+def display_frames_list(frames_list):
+    for i in range(len(frames_list[0])):
+        display = [frames_list[j][i] for j in range(len(frames_list))]
+        utils_cv.show(cv2.hconcat(display))
+
+# Process all videos
+def process_videos(dataset_videos_path, dataset_frames_path, show=False):
+
+    # Create dataset ouput folder if it doesn't exist
+    if(os.path.exists(dataset_frames_path) == False): os.makedirs(dataset_frames_path)
+
+    # Read the folders for all videos
     folder_paths = utils_files.read_folders(dataset_videos_path)
-    # folder_paths.sort() 
-    for folder_path in folder_paths:
+    folder_paths.sort() 
+   
+    # Parameters
+    number_of_frames = 30          # Number of frames to sample from each video
+    resized_size     = (640, 480)  # Size to resize the frames
+    augment_factor   = 9           # Number of augmented frames per original frame
+
+    # Iterate over all subfolders
+    for i in tqdm(range(len(folder_paths))):
+        folder_path = folder_paths[i]
+        folder_name = folder_path.split('/')[-1]
+        
         videos_paths, videos_names = utils_files.read_all_videos(folder_path+'/1')
-        print(f"Folder {folder_path} has {len(videos_paths)} videos")
-      
-        for video_path in videos_paths:
-            print(f"Processing {video_path}")
-            frames           = sample_frames_from_video(video_path, 30) 
-            augmented_frames = augment_frames(frames, 10) 
-            finished_frames  = resize_frames(augmented_frames, (640, 480))
+
+        # Create output folder 
+        output_folder = os.path.join(dataset_frames_path, folder_name)
+        if(os.path.exists(output_folder) == False): os.makedirs(output_folder)
+
+        # Iterate over all videos 
+        subfolder_index = 0
+        print("Processing folder: ", folder_path)
+        for j in tqdm(range(len(videos_paths))):
+            video_path      = videos_paths[j]
+            frames          = sample_frames(video_path, number_of_frames)
+            resized_frames  = resize_frames(frames, resized_size) 
+            augmented_frames_list = augment_frames(resized_frames, augment_factor)  
+            # if show: display_frames_list(augmented_frames_list) 
+        
+            # Save a set of augmented frames for each video 
+            for frames in augmented_frames_list:
+                output_subfolder = os.path.join(output_folder, str(subfolder_index))
+                if(os.path.exists(output_subfolder) == False): os.makedirs(output_subfolder)
+                    
+                subfolder_index += 1 
+                for frame_index in range(len(frames)):
+                    output_path = os.path.join(output_subfolder, str(frame_index)+'.png')
+                    utils_cv.write(frames[frame_index], output_path)                
+
