@@ -9,6 +9,45 @@ from cv2.typing import MatLike
 mp_holistic = mp.solutions.holistic
 mp_drawing = mp.solutions.drawing_utils
 
+HAND_ADJACENT_CONNECTIONS = [
+    ((0, 1), (1, 2)),
+    ((0, 5), (0, 1)),
+    ((0, 5), (0, 17)),
+    ((0, 5), (5, 6)),
+    ((0, 5), (5, 9)),
+    ((0, 17), (0, 1)),
+    ((0, 17), (13, 17)),
+    ((1, 2), (2, 3)),
+    ((3, 4), (2, 3)),
+    ((5, 6), (5, 9)),
+    ((5, 6), (6, 7)),
+    ((5, 9), (9, 10)),
+    ((5, 9), (9, 13)),
+    ((6, 7), (7, 8)),
+    ((9, 10), (9, 13)),
+    ((9, 10), (10, 11)),
+    ((10, 11), (11, 12)),
+    ((13, 14), (9, 13)),
+    ((13, 14), (13, 17)),
+    ((13, 14), (14, 15)),
+    ((13, 17), (9, 13)),
+    ((14, 15), (15, 16)),
+    ((17, 18), (0, 17)),
+    ((17, 18), (13, 17)),
+    ((17, 18), (18, 19)),
+    ((18, 19), (19, 20))
+]
+
+
+# def find_adjacent_connections():
+#     adjacent = []
+#     for a in mp_holistic.HAND_CONNECTIONS:
+#         for b in mp_holistic.HAND_CONNECTIONS:
+#             if a != b and (a[0] in b or a[1] in b) and (b, a) not in adjacent:
+#                 adjacent.append((a, b))
+#     return adjacent
+# HAND_ADJACENT_CONNECTIONS = sorted(find_adjacent_connections())
+
 
 def mediapipe_detection(image: MatLike, model) -> tuple[MatLike, NamedTuple]:
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
