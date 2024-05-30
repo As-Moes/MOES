@@ -59,8 +59,12 @@ def mediapipe_detection(image: MatLike, model) -> tuple[MatLike, NamedTuple]:
 
 
 def draw_landmarks(image: MatLike, results: NamedTuple) -> None:
-    mp_drawing.draw_landmarks(image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
-    mp_drawing.draw_landmarks(image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
+    mp_drawing.draw_landmarks(image, results.pose_landmarks,
+                              mp_holistic.POSE_CONNECTIONS)
+    mp_drawing.draw_landmarks(image, results.left_hand_landmarks,
+                              mp_holistic.HAND_CONNECTIONS)
+    mp_drawing.draw_landmarks(image, results.right_hand_landmarks,
+                              mp_holistic.HAND_CONNECTIONS)
 
 
 def extract_keypoints(image: MatLike) -> np.ndarray:
