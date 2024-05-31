@@ -99,7 +99,7 @@ def display_frames_list(frames_list):
         utils_cv.show(cv2.hconcat(display))
 
 # Process all videos
-def process_videos(dataset_videos_path, dataset_frames_path, show=False):
+def process_videos(dataset_videos_path, dataset_frames_path, number_of_frames, size, augment_factor, show=False):
 
     # Create dataset ouput folder if it doesn't exist
     if(os.path.exists(dataset_frames_path) == False): os.makedirs(dataset_frames_path)
@@ -107,11 +107,6 @@ def process_videos(dataset_videos_path, dataset_frames_path, show=False):
     # Read the folders for all videos
     folder_paths = utils_files.read_folders(dataset_videos_path)
     folder_paths.sort() 
-   
-    # Parameters
-    number_of_frames = 30          # Number of frames to sample from each video
-    resized_size     = (640, 480)  # Size to resize the frames
-    augment_factor   = 9           # Number of augmented frames per original frame
 
     # Iterate over all subfolders
     for i in tqdm(range(len(folder_paths))):
@@ -130,9 +125,9 @@ def process_videos(dataset_videos_path, dataset_frames_path, show=False):
         for j in tqdm(range(len(videos_paths))):
             video_path      = videos_paths[j]
             frames          = sample_frames(video_path, number_of_frames)
-            resized_frames  = resize_frames(frames, resized_size) 
+            resized_frames  = resize_frames(frames, size) 
             augmented_frames_list = augment_frames(resized_frames, augment_factor)  
-            # if show: display_frames_list(augmented_frames_list) 
+            if show: display_frames_list(augmented_frames_list) 
         
             # Save a set of augmented frames for each video 
             for frames in augmented_frames_list:

@@ -1,6 +1,5 @@
 
 import cv2
-import numpy as np
 
 # Resize the requested image using a percentage(%) factor
 def resize_by(image, scale_factor):
@@ -27,7 +26,7 @@ def show(image, title='Image', scale=1.0, free=False):
         if(keyCode & 0xFF) == ord("q") or free:
             break
     cv2.destroyWindow(title)
-        
+    
 # Read the requested image 
 def read(image_path, scale=1.0):
     image = cv2.imread(image_path)
@@ -38,3 +37,4 @@ def read(image_path, scale=1.0):
 def write(image, image_output_path, scale=1.0):
     image = resize_by(image, scale)
     cv2.imwrite(image_output_path, image)
+

@@ -3,4 +3,7 @@ tasks:
   ProcessVideos:
     dataset_videos_path: "data/CrossDatasetVideos"
     dataset_frames_path: "data/CrossDatasetFrames"
-      
+  
+  ExtractKeypoints:
+    dataset_frames_path: "data/CrossDatasetFrames"
+    dataset_path: "data/CrossDatasetFilesCSV"

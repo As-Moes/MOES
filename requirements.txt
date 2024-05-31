@@ -28,3 +28,4 @@ fabric
 pyyaml
 pandas
 tqdm
+scikit-learn
