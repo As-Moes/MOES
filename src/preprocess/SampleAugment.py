@@ -11,7 +11,7 @@ from ..utils import utils_cv
 #-----------------------------------------------------------------------------------
 
 # Sample frames from a video using a normal distribution
-def sample_frames(video_path, num_samples=15):
+def sample_frames(rng, video_path, num_samples=15):
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
         raise ValueError("Error opening video file")
@@ -24,7 +24,7 @@ def sample_frames(video_path, num_samples=15):
     # From Amanda Thesis
     mean          = total_frames / 2
     std_dev       = mean * 0.4
-    frame_indices = np.random.normal(loc=mean, scale=std_dev, size=num_samples)
+    frame_indices = rng.normal(loc=mean, scale=std_dev, size=num_samples)
     frame_indices = np.clip(frame_indices, 0, total_frames - 1).astype(int)
     frame_indices.sort()
 
@@ -61,7 +61,7 @@ def resize_frames(frames, new_size):
 
 # Augment data using flip, rotation and translation
 # Important to keep consistency within frames 
-def augment_frames(frames, augment_factor):
+def augment_frames(rng, frames, augment_factor):
     
     augmented_frames = []
     augmented_frames.append(frames)
@@ -69,10 +69,10 @@ def augment_frames(frames, augment_factor):
     for i in range(augment_factor):
         modified_frames = []
 
-        doFlip = np.random.randint(2)
-        angle  = np.random.uniform(-10, 10)
-        tx     = np.random.randint(-20, 21)
-        ty     = np.random.randint(-20, 21) 
+        doFlip = rng.integers(2)
+        angle  = rng.uniform(-10, 10)
+        tx     = rng.integers(-20, 21)
+        ty     = rng.integers(-20, 21) 
         
         for frame in frames:
             frame = cv2.flip(frame, 1) if doFlip else frame
@@ -100,8 +100,10 @@ def display_frames_list(frames_list):
 
 # Process all videos
 def process_videos(dataset_videos_path, dataset_frames_path, number_of_frames, size, augment_factor, show=False):
+    # Set random seed
+    rng = np.random.default_rng(seed=77796983)
 
-    # Create dataset ouput folder if it doesn't exist
+    # Create dataset output folder if it doesn't exist
     if(os.path.exists(dataset_frames_path) == False): os.makedirs(dataset_frames_path)
 
     # Read the folders for all videos
@@ -124,9 +126,9 @@ def process_videos(dataset_videos_path, dataset_frames_path, number_of_frames, s
         print("Processing folder: ", folder_path)
         for j in tqdm(range(len(videos_paths))):
             video_path      = videos_paths[j]
-            frames          = sample_frames(video_path, number_of_frames)
+            frames          = sample_frames(rng, video_path, number_of_frames)
             resized_frames  = resize_frames(frames, size) 
-            augmented_frames_list = augment_frames(resized_frames, augment_factor)  
+            augmented_frames_list = augment_frames(rng, resized_frames, augment_factor)
             if show: display_frames_list(augmented_frames_list) 
         
             # Save a set of augmented frames for each video 
