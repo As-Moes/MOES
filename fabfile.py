@@ -1,14 +1,13 @@
 
 # Libraries
 import os
+
 import yaml
 from fabric import task
 
-from src.preprocess import SampleAugment
-from src.preprocess import Keypoints2Dataset
-
-from src.keypoints.mpLoader import MediaPipeLoader
 from src.keypoints import KeypointsDetector
+from src.keypoints.mpLoader import MediaPipeLoader
+from src.preprocess import CutFrames, Keypoints2Dataset, SampleAugment
 
 # Read tasks and paths from config file
 with open('config.yaml', 'r') as f:
@@ -41,3 +40,13 @@ def LiveHandTrack(c):
     media_pipe_loader  = MediaPipeLoader()
     KeypointsDetector.live_hands_tracking(window_size, media_pipe_loader)
  
+@task
+def CutLastFrame(c):
+    problematic_videos = [
+        "data/CrossDatasetVideos/melancia/1/signbank_MELANCIA.mp4",
+        "data/CrossDatasetVideos/misturar/1/signbank_MISTURAR.mp4",
+        "data/CrossDatasetVideos/nadar/1/signbank_NADAR.mp4",
+        "data/CrossDatasetVideos/patins/1/signbank_PATINS.mp4"
+    ]
+
+    CutFrames.cut_problematic_frame(problematic_videos)
