@@ -227,15 +227,71 @@ def train(train_dataset_path, val_dataset_path, test_dataset_path, output_path):
         f.write(f"optimizer: {str(type(optimizer))}\n")
         f.write(f"loss_func: {str(type(loss_func))}\n")
 
+from sklearn.metrics import confusion_matrix, classification_report, balanced_accuracy_score
+
 def test(train_dataset_path, val_dataset_path, test_dataset_path, model_path): 
     # Load dataset
-    batch_size    = 16  
+    batch_size    = 1
     loaders, input_size, num_classes = load_dataset(train_dataset_path, val_dataset_path, test_dataset_path, batch_size) 
     train_loader, val_loader, test_loader = loaders
     
-    print(model_path)
-    # model = torch.load(model_path)
-    # model.eval()
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'  
+    model = create_lstm_model(input_size, num_classes, device)
+    model.load_state_dict(torch.load(model_path))
+    model.to(device) 
+    model.eval() 
+
+    total = 0
+    correct = 0
+    all_preds = []
+    all_labels = []
     
-   
-    pass
+    with torch.no_grad():
+        for inputs, labels in test_loader:
+            total    += 1
+            inputs   = inputs.to(device)
+            labels   = labels.squeeze(1).long().to(device)            
+            outputs  = model(inputs)
+
+            labels  = labels.cpu().numpy()
+            outputs = outputs.cpu().numpy()
+
+            label_class = np.argmax(labels.cpu().numpy())
+            pred        = np.argmax(outputs.cpu().numpy())
+           
+            if label_class == pred:
+                correct += 1
+                
+            all_preds.append(pred)
+            all_labels.append(label_class)
+
+    accuracy = (correct / total) * 100
+    print(f'Accuracy on test set: {accuracy:.2f}%')
+
+    balanced_acc = balanced_accuracy_score(all_labels, all_preds)
+    print(f'Balanced Accuracy: {balanced_acc:.2f}')
+
+    print(classification_report(all_labels, all_preds, target_names=[str(i) for i in range(num_classes)]))
+
+    cm = confusion_matrix(all_labels, all_preds)
+    
+    fig, ax = plt.subplots(figsize=(10, 8))
+    cax = ax.matshow(cm, cmap=plt.cm.Blues)
+    fig.colorbar(cax)
+
+    # Set up axes
+    ax.set_xticklabels([''] + [str(i) for i in range(num_classes)])
+    ax.set_yticklabels([''] + [str(i) for i in range(num_classes)])
+
+    # Label axes
+    plt.xlabel('Predicted')
+    plt.ylabel('True')
+
+    # Add title
+    plt.title('Confusion Matrix')
+
+    # Add text annotations
+    for (i, j), value in np.ndenumerate(cm):
+        ax.text(j, i, f'{value}', ha='center', va='center', color='red')
+
+    plt.show()
