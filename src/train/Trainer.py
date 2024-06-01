@@ -89,8 +89,8 @@ def load_dataset(train_dataset_path, val_dataset_path, test_dataset_path, batch_
 
     # Create DataLoader objects 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader   = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
-    test_loader  = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
+    val_loader   = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+    test_loader  = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
     # Get net parameters
     input_size  = train_features.shape[2]
@@ -227,9 +227,15 @@ def train(train_dataset_path, val_dataset_path, test_dataset_path, output_path):
         f.write(f"optimizer: {str(type(optimizer))}\n")
         f.write(f"loss_func: {str(type(loss_func))}\n")
 
-def test(train_dataset_path, val_dataset_path, test_dataset_path, output_path): 
+def test(train_dataset_path, val_dataset_path, test_dataset_path, model_path): 
     # Load dataset
+    batch_size    = 16  
     loaders, input_size, num_classes = load_dataset(train_dataset_path, val_dataset_path, test_dataset_path, batch_size) 
     train_loader, val_loader, test_loader = loaders
     
+    print(model_path)
+    # model = torch.load(model_path)
+    # model.eval()
+    
+   
     pass

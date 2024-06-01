@@ -63,12 +63,11 @@ def TrainModel(c):
 
 @task
 def TestModel(c):
-    train_dataset_path = config['tasks']['TrainModel']['dataset_path'] + config['tasks']['TrainModel']['train']
-    val_dataset_path   = config['tasks']['TrainModel']['dataset_path'] + config['tasks']['TrainModel']['val']  
-    test_dataset_path  = config['tasks']['TrainModel']['dataset_path'] + config['tasks']['TrainModel']['test'] 
-    output_path        = config['tasks']['TrainModel']['output_folder_path']
-    model_path         = config['tasks']['TrainModel']['model_path']
-    Trainer.test(train_dataset_path, val_dataset_path, test_dataset_path, output_path)
+    train_dataset_path = config['tasks']['TestModel']['dataset_path'] + config['tasks']['TestModel']['train']
+    val_dataset_path   = config['tasks']['TestModel']['dataset_path'] + config['tasks']['TestModel']['val']  
+    test_dataset_path  = config['tasks']['TestModel']['dataset_path'] + config['tasks']['TestModel']['test'] 
+    model_path         = config['tasks']['TestModel']['model_path']
+    Trainer.test(train_dataset_path, val_dataset_path, test_dataset_path, model_path)
 
 #-------------------------------------------------------------------
 

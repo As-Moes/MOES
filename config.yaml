@@ -19,7 +19,7 @@ tasks:
     output_folder_path: "runs"
   
   TestModel:
-    dataset_path: "data/CrossDatasetFilesCSV/coordinates"
+    dataset_path: "data/CrossDatasetFilesCSV/angles_distances"
     train: "/train.csv"
     val:   "/val.csv"
     test:  "/test.csv"
