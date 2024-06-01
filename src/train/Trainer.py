@@ -16,6 +16,7 @@ from torch.utils.data import DataLoader, TensorDataset, random_split
 
 from .LSTM import LSTMModel
 from .LSTM import LSTMModelSimple
+from .LSTM import LSTMAmanda
 
 import matplotlib.pyplot as plt
 
@@ -117,6 +118,13 @@ def create_lstm_model(input_size, num_classes, device):
     model = LSTMModel(input_size,hidden_size1,hidden_size2,hidden_size3,fc1_size,fc2_size,num_classes,dropout_prob).to(device)    
     return model
 
+def create_lstm_amanda(input_size, num_classes, device):
+    hidden_size = 512
+    dropout_prob = 0.4
+    l1_lambda = 0.001
+    model = LSTMAmanda(input_size, num_classes, hidden_size, dropout_prob, l1_lambda).to(device)
+    return model
+
 def train(train_dataset_path, val_dataset_path, test_dataset_path, output_path): 
     # Load dataset
     batch_size    = 16 
@@ -132,11 +140,11 @@ def train(train_dataset_path, val_dataset_path, test_dataset_path, output_path):
 
     # Create model 
     device = 'cuda' if torch.cuda.is_available() else 'cpu' 
-    model = create_lstm_model(input_size, num_classes, device)
+    model = create_lstm_amanda(input_size, num_classes, device)
 
     # Define loss function and optimizer
     loss_func     = nn.CrossEntropyLoss()
-    optimizer     = optim.Adam(model.parameters(), lr=learning_rate)
+    optimizer     = optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=0.005)
 
     # Train model 
     train_losses = []
@@ -157,6 +165,13 @@ def train(train_dataset_path, val_dataset_path, test_dataset_path, output_path):
             outputs = model(inputs)
             loss    = loss_func(outputs, torch.max(labels, 1)[1])
             optimizer.zero_grad()
+
+            # L1 regularization
+            l1_loss = 0
+            for param in model.parameters():
+                l1_loss += torch.sum(torch.abs(param))
+            loss += model.l1_lambda * l1_loss
+
             loss.backward()
             optimizer.step()
             train_loss += loss.item() 

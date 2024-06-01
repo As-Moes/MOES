@@ -46,7 +46,6 @@ class LSTMModel(nn.Module):
         c0_3 = torch.zeros(1, batch_size, 64).to(x.device)
 
         out    = self.norm(x)  # Apply normalization
-        out    = self.dropout_input(out)  # Apply dropout on the input
         out, _ = self.lstm1(out, (h0_1, c0_1))
         out    = self.relu(out)
         out, _ = self.lstm2(out, (h0_2, c0_2))
@@ -58,5 +57,34 @@ class LSTMModel(nn.Module):
         out = self.relu(self.fc1(out))
         out = self.relu(self.fc2(out))
         out = self.softmax(self.fc3(out))
+
+        return out
+
+
+class LSTMAmanda(nn.Module):
+    def __init__(self, input_size, num_classes, hidden_size=512, dropout_prob=0.4, l1_lambda=0.001):
+        super(LSTMModel, self).__init__()
+        self.norm = nn.LayerNorm(input_size)  # Apply normalization to the input
+        self.lstm = nn.LSTM(input_size, hidden_size, batch_first=True)
+        self.fc = nn.Linear(hidden_size, num_classes)
+        self.relu = nn.ReLU()
+        self.softmax = nn.Softmax(dim=1)
+        self.dropout = nn.Dropout(dropout_prob)  # Dropout before the dense layers
+        self.l1_lambda = l1_lambda
+
+    def forward(self, x):
+        batch_size = x.size(0)
+        h0 = torch.zeros(1, batch_size, self.lstm.hidden_size).to(x.device)  # Initialize with zeros
+        c0 = torch.zeros(1, batch_size, self.lstm.hidden_size).to(x.device)
+
+        # Criação da máscara
+        mask = (x != 0).float().unsqueeze(-1).to(x.device)
+
+        out    = self.norm(x)  # Apply normalization
+        out    = out * mask
+        out, _ = self.lstm(out, (h0, c0))
+        out    = self.relu(out)
+        out    = self.dropout(out)
+        out    = self.softmax(self.fc(out))
 
         return out
