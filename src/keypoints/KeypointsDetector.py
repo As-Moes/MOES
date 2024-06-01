@@ -90,17 +90,21 @@ def live_hands_tracking(window_size: tuple, mp: MediaPipeLoader) -> None:
     vidcap = cv2.VideoCapture(0)
     vidcap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 
+    show_feed = True
     while vidcap.isOpened():
         ret, frame = vidcap.read()
         if not ret: break
     
         image, results = mediapipe_detection(frame, mp.model)
-        image          = draw_landmarks(image, results, mp)
+        image          = draw_landmarks(image if show_feed else np.zeros(image.shape, dtype=np.uint8), results, mp)
         image          = utils_cv.resize_to(image, window_size)
         
         cv2.imshow('Live', image)
-        if cv2.waitKey(1) & 0xFF == ord('q'): 
-            break
+        match chr(cv2.waitKey(1) & 0xFF):
+            case 'q':
+                break
+            case 't':
+                show_feed = not show_feed
         
     vidcap.release()
     cv2.destroyAllWindows()
