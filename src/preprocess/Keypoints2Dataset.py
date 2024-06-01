@@ -6,7 +6,6 @@ import pandas as pd
 
 from ..keypoints.mpLoader import MediaPipeLoader
 from ..keypoints import KeypointsDetector
-from sklearn.model_selection import train_test_split
 
 from tqdm import tqdm
 from ..utils import utils_files
@@ -62,18 +61,6 @@ def create_dataset(dataset_path, data, labels, columns):
     # Save full dataset
     full_dataset_path = os.path.join(dataset_path, "full_dataset.csv")  
     df.to_csv(full_dataset_path, index=False)
-    
-    # Split dataset in train, val and test and save them aswell
-    train_val, test = train_test_split(df, test_size=0.2, random_state=42)
-    train, val = train_test_split(train_val, test_size=0.25, random_state=42)
-    
-    train_path    = os.path.join(dataset_path, "train.csv")
-    val_path      = os.path.join(dataset_path, "val.csv")
-    test_path     = os.path.join(dataset_path, "test.csv")
-    
-    train.to_csv(train_path, index=False)
-    val.to_csv(val_path, index=False)
-    test.to_csv(test_path, index=False)
  
 # Process all frames in dataset, extract keypoints and save them
 # as a csv file

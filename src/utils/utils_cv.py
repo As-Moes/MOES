@@ -1,7 +1,7 @@
 
 import cv2
 
-# Resize the requested image using a percentage(%) factor
+# Resize the requested image using a percentage factor (0-1)
 def resize_by(image, scale_factor):
     width, height = image.shape[1], image.shape[0]
     new_width     = int(width * scale_factor)

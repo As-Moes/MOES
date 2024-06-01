@@ -15,7 +15,9 @@ from typing import NamedTuple
 # Run MediaPipe model inference
 def mediapipe_detection(image: MatLike, model) -> tuple[MatLike, NamedTuple]:
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    image.flags.writeable = False
     results = model.process(image)
+    image.flags.writeable = True
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     return image, results
 

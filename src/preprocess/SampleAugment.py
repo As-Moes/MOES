@@ -27,12 +27,12 @@ def sample_frames(rng, video_path, num_samples=15):
     frame_indices = rng.normal(loc=mean, scale=std_dev, size=num_samples)
     frame_indices = np.clip(frame_indices, 0, total_frames - 1).astype(int)
     frame_indices.sort()
-
+ 
     # Ensure that all frame indices are unique
     for i in range(1, len(frame_indices)):
         if frame_indices[i] <= frame_indices[i - 1]:
             frame_indices[i] = min(frame_indices[i - 1] + 1, total_frames - 1) 
-
+ 
     # print(len(frame_indices), total_frames, video_fpsj) 
     # Extract the frames corresponding to these indices
     frames = []
@@ -114,7 +114,7 @@ def process_videos(dataset_videos_path, dataset_frames_path, number_of_frames, s
     for i in tqdm(range(len(folder_paths))):
         folder_path = folder_paths[i]
         folder_name = folder_path.split('/')[-1]
-        
+
         videos_paths, videos_names = utils_files.read_all_videos(folder_path+'/1')
 
         # Create output folder 

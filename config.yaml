@@ -7,3 +7,20 @@ tasks:
   ExtractKeypoints:
     dataset_frames_path: "data/CrossDatasetFrames"
     dataset_path: "data/CrossDatasetFilesCSV"
+  
+  SplitDataset:
+    dataset_path: "data/CrossDatasetFilesCSV/angles_distances/full_dataset.csv"
+
+  TrainModel:
+    dataset_path: "data/CrossDatasetFilesCSV/coordinates"
+    train: "/train.csv"
+    val:   "/val.csv"
+    test:  "/test.csv"
+    output_folder_path: "runs"
+  
+  TestModel:
+    dataset_path: "data/CrossDatasetFilesCSV/coordinates"
+    train: "/train.csv"
+    val:   "/val.csv"
+    test:  "/test.csv"
+    model_path: "runs/run3/model_best.pth"
