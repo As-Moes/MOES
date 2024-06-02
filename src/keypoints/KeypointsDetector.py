@@ -38,6 +38,9 @@ def extract_keypoints_raw(image: MatLike, mp: MediaPipeLoader, show: bool = Fals
         image = draw_landmarks(image, results, mp)
         utils_cv.show(image)
     
+    return __extract_keypoints_raw(results)
+    
+def __extract_keypoints_raw(results: np.ndarray) -> np.ndarray:
     left_hand = np.array([[res.x, res.y, res.z] for res in results.left_hand_landmarks.landmark]).flatten() \
         if results.left_hand_landmarks else np.zeros(21*3)
     right_hand = np.array([[res.x, res.y, res.z] for res in results.right_hand_landmarks.landmark]).flatten() \
@@ -54,6 +57,9 @@ def extract_angles_distances(image: MatLike, mp: MediaPipeLoader, show: bool = F
         image = draw_landmarks(image, results, mp)
         utils_cv.show(image)
     
+    return __extract_angles_distances(results, mp)
+    
+def __extract_angles_distances(results: np.ndarray, mp: MediaPipeLoader) -> np.ndarray:
     # CUSTOM FEATURE 1: HANDs ANGLES (26 angles for each hand => 52 angles) 
     angles = []
     for landmarks_list in [results.left_hand_landmarks, results.right_hand_landmarks]:
