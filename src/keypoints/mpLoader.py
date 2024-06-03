@@ -94,4 +94,4 @@ class MediaPipeLoader:
             (20, 21),
             (20, 22),
             (21, 22)
-        ] 
+        ]

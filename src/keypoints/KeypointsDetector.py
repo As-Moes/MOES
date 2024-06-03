@@ -31,13 +31,16 @@ def draw_landmarks(image: MatLike, results: NamedTuple, mp: MediaPipeLoader) -> 
 #--------------------------------------------------------------------------------------------------------
 
 # Extract keypoints from both hands using MediaPipe
-def extract_keypoints_raw(image: MatLike, mp: MediaPipeLoader, show: bool = False) -> np.ndarray:
+def extract_raw_keypoints_from_image(image: MatLike, mp: MediaPipeLoader, show: bool = False) -> np.ndarray:
     _, results = mediapipe_detection(image, mp.model)
     
     if show:
         image = draw_landmarks(image, results, mp)
         utils_cv.show(image)
     
+    return extract_raw_keypoints_from_results(results)
+    
+def extract_raw_keypoints_from_results(results: NamedTuple) -> np.ndarray:
     left_hand = np.array([[res.x, res.y, res.z] for res in results.left_hand_landmarks.landmark]).flatten() \
         if results.left_hand_landmarks else np.zeros(21*3)
     right_hand = np.array([[res.x, res.y, res.z] for res in results.right_hand_landmarks.landmark]).flatten() \
@@ -47,13 +50,16 @@ def extract_keypoints_raw(image: MatLike, mp: MediaPipeLoader, show: bool = Fals
 
 # Extract keypoints from both hands using MediaPipe and compute hand angles for each hand
 # Extract body/face keypoints and compute distances between desired targets
-def extract_angles_distances(image: MatLike, mp: MediaPipeLoader, show: bool = False) -> np.ndarray:
+def extract_angles_distances_from_image(image: MatLike, mp: MediaPipeLoader, show: bool = False) -> np.ndarray:
     _, results = mediapipe_detection(image, mp.model)
 
     if show:
         image = draw_landmarks(image, results, mp)
         utils_cv.show(image)
     
+    return extract_angles_distances_from_results(results, mp)
+    
+def extract_angles_distances_from_results(results: NamedTuple, mp: MediaPipeLoader) -> np.ndarray:
     # CUSTOM FEATURE 1: HANDs ANGLES (26 angles for each hand => 52 angles) 
     angles = []
     for landmarks_list in [results.left_hand_landmarks, results.right_hand_landmarks]:
@@ -112,4 +118,3 @@ def live_hands_tracking(window_size: tuple, mp: MediaPipeLoader) -> None:
     cv2.destroyAllWindows()
 
 #--------------------------------------------------------------------------------------------------------
-

@@ -6,6 +6,7 @@ import yaml
 from fabric import task
 
 from src.keypoints import KeypointsDetector
+from src.keypoints import SignPredictor
 from src.keypoints.mpLoader import MediaPipeLoader
 from src.preprocess import CutFrames, SampleAugment, Keypoints2Dataset
 
@@ -83,3 +84,27 @@ def LiveHandTrack(c):
    
 
     
+@task
+def LiveSignDetect(c):
+    window_size        = (1080, 720) # Size to render image
+    frame_size         = (640, 480)  # Size to resize the frames
+    threshold          = 0.5         # Minimum confidence to predict sign
+    media_pipe_loader  = MediaPipeLoader()
+    model_path         = config['tasks']['TestModel']['model_path']
+    train_dataset_path = config['tasks']['TestModel']['dataset_path'] + config['tasks']['TestModel']['train']
+    val_dataset_path   = config['tasks']['TestModel']['dataset_path'] + config['tasks']['TestModel']['val']  
+    test_dataset_path  = config['tasks']['TestModel']['dataset_path'] + config['tasks']['TestModel']['test'] 
+    sign_predictor = SignPredictor.SignPredictor(model_path, train_dataset_path, val_dataset_path, test_dataset_path)
+    SignPredictor.live_sign_detection(window_size, frame_size, threshold, media_pipe_loader, sign_predictor)
+
+@task
+def VideoSignDetect(c):
+    frame_size         = (640, 480)  # Size to resize the frames
+    media_pipe_loader  = MediaPipeLoader()
+    model_path         = config['tasks']['TestModel']['model_path']
+    train_dataset_path = config['tasks']['TestModel']['dataset_path'] + config['tasks']['TestModel']['train']
+    val_dataset_path   = config['tasks']['TestModel']['dataset_path'] + config['tasks']['TestModel']['val']  
+    test_dataset_path  = config['tasks']['TestModel']['dataset_path'] + config['tasks']['TestModel']['test'] 
+    sign_predictor = SignPredictor.SignPredictor(model_path, train_dataset_path, val_dataset_path, test_dataset_path)
+    pred = sign_predictor.predict_from_video("data/Alto.mp4", frame_size, media_pipe_loader)
+    print(sign_predictor.get_top_i_predictions(pred, 5))
