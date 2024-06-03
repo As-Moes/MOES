@@ -94,4 +94,13 @@ class MediaPipeLoader:
             (20, 21),
             (20, 22),
             (21, 22)
-        ] 
+        ]
+
+
+# import os
+# actions = list(map(lambda x: x.upper(), sorted(os.listdir("data/CrossDatasetVideos"))))
+# print(f"ACTIONS = {actions}")
+# enum = {idx: name for (idx, name) in enumerate(actions)}
+# print(f"ACTIONS2 = {enum}")
+
+ACTIONS = ['ABACAXI', 'ACOMPANHAR', 'ACONTECER', 'ACORDAR', 'ACRESCENTAR', 'ALTO', 'AMIGO', 'ANO', 'ANTES', 'APAGAR', 'APRENDER', 'AR', 'BARBA', 'BARCO', 'BICICLETA', 'BODE', 'BOI', 'BOLA', 'BOLSA', 'CABELO', 'CAIR', 'CAIXA', 'CALCULADORA', 'CASAMENTO', 'CAVALO', 'CEBOLA', 'CERVEJA', 'CHEGAR', 'CHINELO', 'COCO', 'COELHO', 'COMER', 'COMPARAR', 'COMPRAR', 'COMPUTADOR', 'DESTRUIR', 'DIA', 'DIMINUIR', 'ELEFANTE', 'ELEVADOR', 'ESCOLA', 'ESCOLHER', 'ESQUECER', 'FLAUTA', 'FLOR', 'MELANCIA', 'MISTURAR', 'NADAR', 'PATINS']

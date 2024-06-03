@@ -77,3 +77,14 @@ def LiveHandTrack(c):
     media_pipe_loader  = MediaPipeLoader()
     KeypointsDetector.live_hands_tracking(window_size, media_pipe_loader)
     
+@task
+def LiveSignDetect(c):
+    window_size        = (1080, 720) # Size to render image
+    frame_size         = (640, 480)  # Size to resize the frames
+    threshold          = 0.5         # Minimum confidence to predict sign
+    media_pipe_loader  = MediaPipeLoader()
+    model_path         = config['tasks']['TestModel']['model_path']
+    train_dataset_path = config['tasks']['TestModel']['dataset_path'] + config['tasks']['TestModel']['train']
+    val_dataset_path   = config['tasks']['TestModel']['dataset_path'] + config['tasks']['TestModel']['val']  
+    test_dataset_path  = config['tasks']['TestModel']['dataset_path'] + config['tasks']['TestModel']['test'] 
+    KeypointsDetector.live_sign_detection(window_size, frame_size, threshold, media_pipe_loader, model_path, train_dataset_path, val_dataset_path, test_dataset_path)
