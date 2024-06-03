@@ -104,9 +104,9 @@ def live_sign_detection(window_size: tuple, frame_size: tuple, threshold: float,
         if make_predictions:
             keypoints = extract_angles_distances_from_results(results, mp)
             sequence.append(keypoints)
-            sequence = sequence[-30:]
+            sequence = sequence[-15:]
 
-            if len(sequence) == 30:
+            if len(sequence) == 15:
                 res  = sp.predict_from_features(sequence)
                 pred = np.argmax(res)
                 predictions.append(pred)
