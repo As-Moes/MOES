@@ -68,8 +68,6 @@ def kFold(c):
     random_state        = 77796983
     DatasetLoader.split_dataset(dataset_path, train_percentage, val_percentage, test_percentage, series_size, random_state)
 
-
-    
 #-------------------------------------------------------------------
 
 @task
@@ -102,10 +100,7 @@ def LiveSignDetect(c):
     threshold          = 0.5         # Minimum confidence to predict sign
     media_pipe_loader  = MediaPipeLoader()
     model_path         = config['tasks']['TestModel']['model_path']
-    train_dataset_path = config['tasks']['TestModel']['dataset_path'] + config['tasks']['TestModel']['train']
-    val_dataset_path   = config['tasks']['TestModel']['dataset_path'] + config['tasks']['TestModel']['val']  
-    test_dataset_path  = config['tasks']['TestModel']['dataset_path'] + config['tasks']['TestModel']['test'] 
-    sign_predictor = SignPredictor.SignPredictor(model_path, train_dataset_path, val_dataset_path, test_dataset_path)
+    sign_predictor = SignPredictor.SignPredictor(model_path)
     SignPredictor.live_sign_detection(window_size, frame_size, threshold, media_pipe_loader, sign_predictor)
 
 @task
@@ -113,10 +108,7 @@ def VideoSignDetect(c):
     frame_size         = (640, 480)  # Size to resize the frames
     media_pipe_loader  = MediaPipeLoader()
     model_path         = config['tasks']['TestModel']['model_path']
-    train_dataset_path = config['tasks']['TestModel']['dataset_path'] + config['tasks']['TestModel']['train']
-    val_dataset_path   = config['tasks']['TestModel']['dataset_path'] + config['tasks']['TestModel']['val']  
-    test_dataset_path  = config['tasks']['TestModel']['dataset_path'] + config['tasks']['TestModel']['test'] 
-    sign_predictor = SignPredictor.SignPredictor(model_path, train_dataset_path, val_dataset_path, test_dataset_path)
-    pred = sign_predictor.predict_from_video("data/Alto.mp4", frame_size, media_pipe_loader)
+    sign_predictor = SignPredictor.SignPredictor(model_path)
+    pred = sign_predictor.predict_from_video("data/Esquecer.mp4", frame_size, media_pipe_loader)
     print(sign_predictor.get_top_i_predictions(pred, 5))
  
