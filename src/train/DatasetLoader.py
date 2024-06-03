@@ -130,3 +130,22 @@ def get_test_loader(test_dataset_path, series_size=30):
     test_loader  = DataLoader(test_dataset, batch_size=1, shuffle=False)    
 
     return test_loader
+
+#---------------------------------------------------------------------------------
+
+def filter_dataset(dataset_videos_path, full_dataset_path):
+    
+    # Read the folders for all videos
+    folder_paths = utils_files.read_folders(dataset_videos_path)
+    folder_paths.sort() 
+
+    # Iterate over all subfolders
+    for i in tqdm(range(len(folder_paths))):
+        folder_path = folder_paths[i]
+        folder_name = folder_path.split('/')[-1]
+
+        videos_paths, videos_names = utils_files.read_all_videos(folder_path+'/1')
+        print()
+        print(videos_names)
+        print()
+     

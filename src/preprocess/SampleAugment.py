@@ -116,7 +116,12 @@ def process_videos(dataset_videos_path, dataset_frames_path, number_of_frames, s
         folder_name = folder_path.split('/')[-1]
 
         videos_paths, videos_names = utils_files.read_all_videos(folder_path+'/1')
-
+        videos_names.sort()
+        print()
+        print(videos_names)
+        print()
+        continue
+    
         # Create output folder 
         output_folder = os.path.join(dataset_frames_path, folder_name)
         if(os.path.exists(output_folder) == False): os.makedirs(output_folder)

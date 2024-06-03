@@ -65,6 +65,18 @@ def create_dataset(dataset_path, data, labels, columns):
  
 # Process all frames in dataset, extract keypoints and save them
 # as a csv file
+def sort_paths_by_numeric_png(paths):
+    def numeric_key(path):
+        filename = path.split('/')[-1]
+        return int(filename[:-4])
+    return sorted(paths, key=numeric_key)
+
+def sort_paths_by_numeric_end(paths):
+    def numeric_key(path):
+        end = path.split('/')[-1]
+        return int(end)
+    return sorted(paths, key=numeric_key)
+
 def process_frames(dataset_frames_path, dataset_path, mode, media_pipe_loader, show=False):
 
     if(mode != "coordinates" and mode != "angles_distances"):
@@ -81,11 +93,18 @@ def process_frames(dataset_frames_path, dataset_path, mode, media_pipe_loader, s
     for i in tqdm(range(len(folder_paths))):
         folder_path     = folder_paths[i]
         subfolder_paths = utils_files.read_folders(folder_path)
-        subfolder_paths.sort()
+        subfolder_paths = sort_paths_by_numeric_end(subfolder_paths)
+        print(subfolder_paths)
+        
         print("Processing folder: ", folder_path) 
         for j in tqdm(range(len(subfolder_paths))):
             subfolder_path = subfolder_paths[j] 
-            frames_paths, _ = utils_files.read_all_images(subfolder_path)
+            frames_paths, frames_names = utils_files.read_all_images(subfolder_path)
+            frames_paths = sort_paths_by_numeric_png(frames_paths)
+            frames_names = sort_paths_by_numeric_png(frames_names)
+        
+            print(frames_names) 
+            
             features     = [] 
             for frame_path in frames_paths:
                 frame = utils_cv.read(frame_path) 

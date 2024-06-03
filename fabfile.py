@@ -57,6 +57,19 @@ def SplitDataset(c):
     random_state        = 77796983
     DatasetLoader.split_dataset(dataset_path, train_percentage, val_percentage, test_percentage, series_size, random_state)
 
+@task 
+def kFold(c):
+    dataset_videos_path = config['tasks']['ProcessVideos']['dataset_videos_path']  
+    dataset_path        = config['tasks']['SplitDataset']['dataset_path']
+    series_size         = 15  # Number of frames Samples
+    train_percentage    = 0.6
+    val_percentage      = 0.2
+    test_percentage     = 0.2
+    random_state        = 77796983
+    DatasetLoader.split_dataset(dataset_path, train_percentage, val_percentage, test_percentage, series_size, random_state)
+
+
+    
 #-------------------------------------------------------------------
 
 @task
@@ -80,9 +93,7 @@ def TestModel(c):
 def LiveHandTrack(c):
     window_size        = (1080, 720)
     media_pipe_loader  = MediaPipeLoader()
-    KeypointsDetector.live_hands_tracking(window_size, media_pipe_loader)
-   
-
+    KeypointsDetector.live_hands_tracking(window_size, media_pipe_loader) 
     
 @task
 def LiveSignDetect(c):
@@ -108,3 +119,4 @@ def VideoSignDetect(c):
     sign_predictor = SignPredictor.SignPredictor(model_path, train_dataset_path, val_dataset_path, test_dataset_path)
     pred = sign_predictor.predict_from_video("data/Alto.mp4", frame_size, media_pipe_loader)
     print(sign_predictor.get_top_i_predictions(pred, 5))
+ 
