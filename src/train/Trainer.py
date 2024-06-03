@@ -52,7 +52,7 @@ def train(train_dataset_path, val_dataset_path, output_path, series_size):
     device        = 'cuda' if torch.cuda.is_available() else 'cpu' 
     model         = LSTMAmanda(num_features, num_classes, hidden_size, mask_prob, dropout_prob, l1_lambda).to(device) 
     loss_func     = nn.CrossEntropyLoss()
-    optimizer     = optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=0.005)
+    optimizer     = optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=0.05)
 
     # Define a variable to track the validation loss
     best_val_loss         = np.inf
@@ -68,18 +68,13 @@ def train(train_dataset_path, val_dataset_path, output_path, series_size):
         train_loss = 0.0
         for inputs, labels in train_loader:
             inputs  = inputs.to(device)
-            labels  = labels.squeeze(1).long().to(device)
+            labels  = labels.to(device)
             outputs = model(inputs)
 
             # Compute loss
-            loss    = loss_func(outputs, torch.max(labels, 1)[1])
+            labels = torch.max(labels, 1)[1]
+            loss    = loss_func(outputs, labels)
             optimizer.zero_grad()
-
-            # L1 regularization
-            # l1_loss = 0
-            # for param in model.parameters():
-            #     l1_loss += torch.sum(torch.abs(param))
-            # loss += model.l1_lambda * l1_loss
 
             loss.backward()
             optimizer.step()

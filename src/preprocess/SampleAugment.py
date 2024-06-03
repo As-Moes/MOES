@@ -70,9 +70,9 @@ def augment_frames(rng, frames, augment_factor):
         modified_frames = []
 
         doFlip = rng.integers(2)
-        angle  = rng.uniform(-10, 10)
-        tx     = rng.integers(-20, 21)
-        ty     = rng.integers(-20, 21) 
+        angle  = rng.uniform(-20, 20)
+        tx     = rng.integers(-50, 51)
+        ty     = rng.integers(-50, 51) 
         
         for frame in frames:
             frame = cv2.flip(frame, 1) if doFlip else frame
