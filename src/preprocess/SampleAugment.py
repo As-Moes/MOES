@@ -99,9 +99,9 @@ def display_frames_list(frames_list):
         utils_cv.show(cv2.hconcat(display))
 
 # Process all videos
-def process_videos(dataset_videos_path, dataset_frames_path, number_of_frames, size, augment_factor, show=False):
+def process_videos(dataset_videos_path, dataset_frames_path, number_of_frames, size, augment_factor, random_state, show=False):
     # Set random seed
-    rng = np.random.default_rng(seed=77796983)
+    rng = np.random.default_rng(seed=random_state)
 
     # Create dataset output folder if it doesn't exist
     if(os.path.exists(dataset_frames_path) == False): os.makedirs(dataset_frames_path)

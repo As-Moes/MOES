@@ -30,3 +30,4 @@ pandas
 tqdm
 scikit-learn
 torch
+seaborn

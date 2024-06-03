@@ -47,6 +47,7 @@ def columns_angles_distances(dataset_path, data, labels):
  
 #-------------------------------------------------------------------------------------------------------
 
+# Create dataset as csv and save it
 def create_dataset(dataset_path, data, labels, columns):
     data = np.array(data) 
     print(data.shape)

@@ -1,5 +1,4 @@
 
-
 import numpy as np
     
 def angle_between(vec1: np.ndarray, vec2: np.ndarray) -> float:
@@ -7,4 +6,5 @@ def angle_between(vec1: np.ndarray, vec2: np.ndarray) -> float:
     u_vec2 = vec2 / np.linalg.norm(vec2)
     cos = np.dot(u_vec1, u_vec2)
     return np.arccos(cos)
-     
+
+ 

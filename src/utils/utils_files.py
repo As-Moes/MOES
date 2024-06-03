@@ -1,4 +1,5 @@
 
+import csv
 import sys
 import os
 
@@ -42,3 +43,31 @@ def read_all_videos(path):
     extensions = ['mp4', 'avi', 'mov', 'mkv']
     return read_files(path, extensions)
 
+#---------------------------------------------------------------------------------
+
+# Read whole CSV file
+def read_csv(file_path):
+    with open(file_path, 'r', newline='') as file:
+        reader = csv.reader(file)
+        data = list(reader)
+    return data
+
+# Prepend a row to a CSV file
+def add_row_to_csv(file_path, new_row):
+    with open(file_path, 'r', newline='') as file:
+        reader = csv.reader(file)
+        data = list(reader) 
+    data.insert(0, new_row)
+    with open(file_path, 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(data)
+
+def remove_first_row_from_csv(file_path):
+    with open(file_path, 'r', newline='') as file:
+        reader = csv.reader(file)
+        data = list(reader)    
+    if data:
+        data = data[1:] 
+    with open(file_path, 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(data)
