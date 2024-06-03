@@ -89,9 +89,9 @@ def process_frames(dataset_frames_path, dataset_path, mode, media_pipe_loader, s
             for frame_path in frames_paths:
                 frame = utils_cv.read(frame_path) 
                 if mode == "coordinates":
-                    frame_features = KeypointsDetector.extract_keypoints_raw(frame, media_pipe_loader, show) 
+                    frame_features = KeypointsDetector.extract_raw_keypoints_from_image(frame, media_pipe_loader, show) 
                 elif mode == "angles_distances":
-                    frame_features = KeypointsDetector.extract_angles_distances(frame, media_pipe_loader, show)
+                    frame_features = KeypointsDetector.extract_angles_distances_from_image(frame, media_pipe_loader, show)
                 features.append(frame_features)
             data.append(features)
             labels.append(i)
