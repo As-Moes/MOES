@@ -19,14 +19,23 @@ def split_dataset_kfold(dataset_path, train_percentage, val_percentage, series_s
         raise Exception("Sum of train and val percentages must be equal to 1")
     
     full_df         = pd.read_csv(dataset_path)
-    origin_datasets = full_df.iloc[:, -2]
-    unique_origins  = origin_datasets.unique()
+    origin_dataset  = full_df.iloc[:, -2]
+    unique_origins  = origin_dataset.unique()
 
- 
-    target   = unique_origins[0]
-    test     = full_df[origin_datasets == target]
-    print(test) 
-
+    folder = os.path.join(os.path.dirname(dataset_path), 'datasets_kfold')
+    for origin in unique_origins:
+        origin_dir = os.path.join(folder, f'origin_{origin}')
+        os.makedirs(origin_dir, exist_ok=True)
+   
+        test           = full_df[origin_dataset == origin] 
+        remaining_data = full_df[origin_dataset != origin]
+        
+        train, val     = train_test_split(remaining_data, test_size=val_percentage, random_state=42)
+        
+        train.to_csv(f'{origin_dir}/train.csv', index=False)
+        val.to_csv(f'{origin_dir}/val.csv', index=False)
+        test.to_csv(f'{origin_dir}/test.csv', index=False) 
+    
     
 # Split dataset in train, val and test
 # Save number of classes and input size
