@@ -1,12 +1,11 @@
 import cv2
 import numpy as np
+import time
 import torch
 
 from ..preprocess import SampleAugment
 
 from ..utils import utils_cv
-
-from ..train import Trainer
 
 from .KeypointsDetector import draw_landmarks
 from .KeypointsDetector import extract_angles_distances_from_results
@@ -18,15 +17,11 @@ from .mpLoader import MediaPipeLoader
 from cv2.typing import MatLike
 
 class SignPredictor:
-    def __init__(self, model_path: str, train_dataset_path, val_dataset_path, test_dataset_path) -> None:
+    def __init__(self, model_path: str) -> None:
         # Loads the model
-        batch_size = 1
-        _, input_size, num_classes = Trainer.load_dataset(train_dataset_path, val_dataset_path, test_dataset_path, batch_size) 
-        
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.model = Trainer.create_lstm_amanda(input_size, num_classes, self.device)
-        self.model.load_state_dict(torch.load(model_path, map_location=torch.device(self.device)))
-        self.model.to(self.device) 
+        self.model = torch.load(model_path, map_location=torch.device(self.device))
+        self.model = self.model.to(self.device)
         self.model.eval() 
 
         # List of all supported actions
@@ -44,13 +39,18 @@ class SignPredictor:
 
     def predict_from_video(self, video_path: str, frame_size: tuple, mp: MediaPipeLoader) -> np.ndarray:
         rng = np.random.default_rng(seed=77796983)
-        frames = SampleAugment.sample_frames(rng, video_path, 30)
+        frames = SampleAugment.sample_frames(rng, video_path)
         frames = [utils_cv.resize_to(frame, frame_size) for frame in frames]
 
+        input_size = list(self.model.parameters())[0].size()[0]
         features = []
         for frame in frames:
             _, results = mediapipe_detection(frame, mp.model)
-            features.append(extract_angles_distances_from_results(results, mp))
+            if input_size == 89:
+                feat = extract_angles_distances_from_results(results, mp)
+            else:
+                feat = extract_raw_keypoints_from_results(results, mp)
+            features.append(feat)
 
         return self.predict_from_features(features)
 
@@ -76,13 +76,12 @@ class SignPredictor:
 # Turn on the webcam and run MediaPipe model inference
 # on each frame, draw keypoints and predict sign
 def live_sign_detection(window_size: tuple, frame_size: tuple, threshold: float, mp: MediaPipeLoader, sp: SignPredictor) -> None:
-    # vidcap = cv2.VideoCapture(0)
-    vidcap = cv2.VideoCapture("data/Alto.mp4")
+    vidcap = cv2.VideoCapture(0)
     vidcap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 
     show_feed        = True   # press 't' to toggle background
     show_keypoints   = True   # press 'k' to toggle keypoints
-    make_predictions = True  # press 'p' to start predicting
+    make_predictions = False  # press 'p' to start predicting
     sequence    = []
     predictions = []
     sentence    = []
@@ -105,9 +104,9 @@ def live_sign_detection(window_size: tuple, frame_size: tuple, threshold: float,
         if make_predictions:
             keypoints = extract_angles_distances_from_results(results, mp)
             sequence.append(keypoints)
-            sequence = sequence[-30:]
+            sequence = sequence[-15:]
 
-            if len(sequence) == 30:
+            if len(sequence) == 15:
                 res  = sp.predict_from_features(sequence)
                 pred = np.argmax(res)
                 predictions.append(pred)
@@ -141,6 +140,9 @@ def live_sign_detection(window_size: tuple, frame_size: tuple, threshold: float,
                 show_keypoints = not show_keypoints
             case 'p':
                 make_predictions = not make_predictions
+                if make_predictions:
+                    time.sleep(3)
+                    print("INICIANDO DETECÇÃO...")
         
     vidcap.release()
     cv2.destroyAllWindows()
