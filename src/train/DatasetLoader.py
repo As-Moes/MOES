@@ -12,6 +12,22 @@ from torch.utils.data import DataLoader, TensorDataset
 
 #-------------------------------------------------------------------------------------------------
 
+def split_dataset_kfold(dataset_path, train_percentage, val_percentage, series_size, random_state):
+    print(f"Splitting dataset {dataset_path}...") 
+
+    if(train_percentage + val_percentage != 1):
+        raise Exception("Sum of train and val percentages must be equal to 1")
+    
+    full_df         = pd.read_csv(dataset_path)
+    origin_datasets = full_df.iloc[:, -2]
+    unique_origins  = origin_datasets.unique()
+
+ 
+    target   = unique_origins[0]
+    test     = full_df[origin_datasets == target]
+    print(test) 
+
+    
 # Split dataset in train, val and test
 # Save number of classes and input size
 def split_dataset(dataset_path, train_percentage, val_percentage, test_percentage, series_size, random_state):
@@ -43,7 +59,7 @@ def split_dataset(dataset_path, train_percentage, val_percentage, test_percentag
     # Add number of classes and input size information to the dataset
     # on the top row
     num_classes  = len(set(full_df.iloc[:, -1].values)) 
-    num_features = int((full_df.head(1).shape[1] - 1) / series_size)
+    num_features = int((full_df.head(1).shape[1] - 2) / series_size)
     print(f"Number of classes: {num_classes} \nNumber of features: {series_size}") 
      
     utils_files.add_row_to_csv(train_path, [num_classes, num_features])
@@ -75,9 +91,9 @@ def get_training_loaders(train_dataset_path, val_dataset_path, batch_size=32, se
     utils_files.add_row_to_csv(val_dataset_path,   first_row)
 
     # Extract features and labels
-    train_features = train_df.iloc[:, :-1].values
+    train_features = train_df.iloc[:, :-2].values
     train_labels   = train_df.iloc[:, -1].values
-    val_features   = val_df.iloc[:, :-1].values
+    val_features   = val_df.iloc[:, :-2].values
     val_labels     = val_df.iloc[:, -1].values
 
     # Reshape features to their original shape
@@ -115,7 +131,7 @@ def get_test_loader(test_dataset_path, series_size=30):
     utils_files.add_row_to_csv(test_dataset_path, first_row)
 
     # Extract features and labels
-    test_features  = test_df.iloc[:, :-1].values
+    test_features  = test_df.iloc[:, :-2].values
     test_labels    = test_df.iloc[:, -1].values    
 
     # Reshape features to their original shape
@@ -130,22 +146,3 @@ def get_test_loader(test_dataset_path, series_size=30):
     test_loader  = DataLoader(test_dataset, batch_size=1, shuffle=False)    
 
     return test_loader
-
-#---------------------------------------------------------------------------------
-
-def filter_dataset(dataset_videos_path, full_dataset_path):
-    
-    # Read the folders for all videos
-    folder_paths = utils_files.read_folders(dataset_videos_path)
-    folder_paths.sort() 
-
-    # Iterate over all subfolders
-    for i in tqdm(range(len(folder_paths))):
-        folder_path = folder_paths[i]
-        folder_name = folder_path.split('/')[-1]
-
-        videos_paths, videos_names = utils_files.read_all_videos(folder_path+'/1')
-        print()
-        print(videos_names)
-        print()
-     

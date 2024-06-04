@@ -34,7 +34,7 @@ def plot_loss(train_losses, val_losses, results_folder):
 def train(train_dataset_path, val_dataset_path, output_path, series_size):  
     # Hyperparameters
     batch_size    = 32
-    num_epochs    = 200
+    num_epochs    = 300
     learning_rate = 0.0001
 
     hidden_size   = 512
@@ -52,7 +52,7 @@ def train(train_dataset_path, val_dataset_path, output_path, series_size):
     device        = 'cuda' if torch.cuda.is_available() else 'cpu' 
     model         = LSTMAmanda(num_features, num_classes, hidden_size, mask_prob, dropout_prob, l1_lambda).to(device) 
     loss_func     = nn.CrossEntropyLoss()
-    optimizer     = optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=0.05)
+    optimizer     = optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=0.005)
 
     # Define a variable to track the validation loss
     best_val_loss         = np.inf

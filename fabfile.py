@@ -59,16 +59,12 @@ def SplitDataset(c):
 
 @task 
 def kFold(c):
-    dataset_videos_path = config['tasks']['ProcessVideos']['dataset_videos_path']  
     dataset_path        = config['tasks']['SplitDataset']['dataset_path']
     series_size         = 15  # Number of frames Samples
-    train_percentage    = 0.6
+    train_percentage    = 0.8
     val_percentage      = 0.2
-    test_percentage     = 0.2
     random_state        = 77796983
-    DatasetLoader.split_dataset(dataset_path, train_percentage, val_percentage, test_percentage, series_size, random_state)
-
-
+    DatasetLoader.split_dataset_kfold(dataset_path, train_percentage, val_percentage, series_size, random_state)
     
 #-------------------------------------------------------------------
 
