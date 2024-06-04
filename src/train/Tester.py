@@ -19,15 +19,34 @@ def plot_confusion_matrix(cm, num_classes, save_path):
     cm_percentage = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
 
     plt.figure(figsize=(8, 6))
-    sns.heatmap(cm_percentage, cmap='Blues', xticklabels=ACTIONS, yticklabels=ACTIONS, fmt='g')
-    plt.title('Confusion matrix')
-    plt.xlabel('Predicted label')
-    plt.ylabel('True label')
+    ax = sns.heatmap(cm_percentage, cmap='Blues', xticklabels=ACTIONS, yticklabels=ACTIONS, fmt='g')
+
+    ax.set_xticklabels(ax.get_xticklabels(), fontsize=8)
+    ax.set_yticklabels(ax.get_yticklabels(), fontsize=8)
+
+    plt.xlabel('Predicted label', fontsize=16)
+    plt.ylabel('True label', fontsize=16)
+    plt.tight_layout()
+
     plt.savefig(os.path.join(save_path, "confusion_matrix.png"))
     plt.show() 
 
 #---------------------------------------------------------------
 # Test
+
+# def get_top_i_predictions(outputs: np.ndarray, i: int) -> list[tuple[str, float]]:
+    # sorted_indices = np.argsort(outputs)[::-1]
+    # top_i_indices = sorted_indices[:i]
+    # top_i_predictions = [(ACTIONS[idx], outputs[idx]) for idx in top_i_indices]
+    # return top_i_predictions
+
+def get_top5(outputs: np.ndarray, true_label) -> list[tuple[str, float]]:
+    sorted_indices = np.argsort(outputs)[::-1]
+    top5_indices   = sorted_indices[:5]
+    if true_label in top5_indices:
+        return 1
+    return 0
+
 def test(test_dataset_path, model_path, series_size):
     # Load test dataset
     num_classes, num_features = DatasetLoader.get_dataset_info(test_dataset_path)  
@@ -42,18 +61,24 @@ def test(test_dataset_path, model_path, series_size):
     # Test
     all_preds   = []
     all_labels  = []
+    correct_top5  = 0
     with torch.no_grad():
         for inputs, labels in test_loader:
             inputs  = inputs.to(device)
-            label   = labels[0]
+            label   = labels[0].item()
             all_labels.append(label)
             
             outputs = model(inputs)
-            outputs = outputs.cpu().numpy() 
-            pred    = np.argmax(outputs)
-            all_preds.append(pred)
-                           
+            outputs = outputs.cpu().numpy()
 
+            top5 = get_top5(outputs, label)
+            correct_top5 += top5
+
+            pred    = np.argmax(outputs)
+            all_preds.append(pred)                           
+
+    print(f"Correct Top 5: {correct_top5/len(test_loader)}")
+    
     accuracy     = 100 * accuracy_score(all_labels, all_preds)
     balanced_acc = 100 * balanced_accuracy_score(all_labels, all_preds) 
     precision    = 100 * precision_score(all_labels, all_preds, average='macro')

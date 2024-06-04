@@ -22,7 +22,7 @@ def split_dataset_kfold(dataset_path, train_percentage, val_percentage, series_s
     origin_dataset  = full_df.iloc[:, -2]
     unique_origins  = origin_dataset.unique()
 
-    folder = os.path.join(os.path.dirname(dataset_path), 'datasets_kfold')
+    folder = os.path.join(os.path.dirname(dataset_path), 'kfold')
     for origin in unique_origins:
         origin_dir = os.path.join(folder, f'origin_{origin}')
         os.makedirs(origin_dir, exist_ok=True)
@@ -34,8 +34,14 @@ def split_dataset_kfold(dataset_path, train_percentage, val_percentage, series_s
         
         train.to_csv(f'{origin_dir}/train.csv', index=False)
         val.to_csv(f'{origin_dir}/val.csv', index=False)
-        test.to_csv(f'{origin_dir}/test.csv', index=False) 
-    
+        test.to_csv(f'{origin_dir}/test.csv', index=False)
+
+        num_classes  = len(set(full_df.iloc[:, -1].values)) 
+        num_features = int((full_df.head(1).shape[1] - 2) / series_size)
+ 
+        utils_files.add_row_to_csv(f'{origin_dir}/train.csv', [num_classes, num_features])
+        utils_files.add_row_to_csv(f'{origin_dir}/val.csv', [num_classes, num_features])
+        utils_files.add_row_to_csv(f'{origin_dir}/test.csv', [num_classes, num_features]) 
     
 # Split dataset in train, val and test
 # Save number of classes and input size

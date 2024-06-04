@@ -12,10 +12,12 @@ tasks:
     dataset_path: "data/CrossDatasetFilesCSV/angles_distances/full_dataset.csv"
 
   TrainModel:
+    # train_dataset_path: "data/CrossDatasetFilesCSV/angles_distances/train.csv"
+    # val_dataset_path: "data/CrossDatasetFilesCSV/angles_distances/val.csv"
     train_dataset_path: "data/CrossDatasetFilesCSV/angles_distances/kfold/origin_incluir/train.csv"
     val_dataset_path:   "data/CrossDatasetFilesCSV/angles_distances/kfold/origin_incluir/val.csv"
     output_folder_path: "runs"
   
   TestModel:
     test_dataset_path: "data/CrossDatasetFilesCSV/angles_distances/kfold/origin_incluir/test.csv"
-    model_path: "runs/run17/model_best.pth"
+    model_path: "runs/run19/model_best.pth"
