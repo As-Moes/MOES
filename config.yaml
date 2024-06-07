@@ -2,22 +2,25 @@
 tasks:
   ProcessVideos:
     dataset_videos_path: "data/CrossDatasetVideos"
-    dataset_frames_path: "data/CrossDatasetFrames"
+    dataset_frames_path: "data/OurDatasetFrames_lool"
   
   ExtractKeypoints:
-    dataset_frames_path: "data/CrossDatasetFrames"
-    dataset_path: "data/CrossDatasetFilesCSV"
+    dataset_frames_path: "data/OurDatasetFrames_15"
+    dataset_path: "data/OurDatasetFilesCSV_15"
   
   SplitDataset:
-    dataset_path: "data/CrossDatasetFilesCSV/angles_distances/full_dataset.csv"
+    dataset_path: "data/CrossDatasetFilesCSV_30/angles_distances/full_dataset.csv"
 
   TrainModel:
-    # train_dataset_path: "data/CrossDatasetFilesCSV/angles_distances/train.csv"
-    # val_dataset_path: "data/CrossDatasetFilesCSV/angles_distances/val.csv"
-    train_dataset_path: "data/CrossDatasetFilesCSV/angles_distances/kfold/origin_incluir/train.csv"
-    val_dataset_path:   "data/CrossDatasetFilesCSV/angles_distances/kfold/origin_incluir/val.csv"
+    train_dataset_path: "data/CrossDatasetFilesCSV_30/angles_distances/train.csv"
+    val_dataset_path:   "data/CrossDatasetFilesCSV_30/angles_distances/val.csv"
+    # train_dataset_path: "data/CrossDatasetFilesCSV_30_flip/angles_distances/kfold/origin_signbank/train.csv"
+    # val_dataset_path:   "data/CrossDatasetFilesCSV_30_flip/angles_distances/kfold/origin_signbank/val.csv"
     output_folder_path: "runs"
   
   TestModel:
-    test_dataset_path: "data/CrossDatasetFilesCSV/angles_distances/kfold/origin_incluir/test.csv"
-    model_path: "runs/run19/model_best.pth"
+    test_dataset_path: "data/OurDatasetFilesCSV/angles_distances/full_dataset.csv"
+    # test_dataset_path: "data/CrossDatasetFilesCSV_15/angles_distances/test.csv"
+    # test_dataset_path: "data/CrossDatasetFilesCSV_15/angles_distances/kfold/origin_signbank/test.csv"
+      # nice: 28 38
+    model_path: "runs/run55/model_best.pth"

@@ -19,7 +19,7 @@ def plot_confusion_matrix(cm, num_classes, save_path):
     cm_percentage = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
 
     plt.figure(figsize=(8, 6))
-    ax = sns.heatmap(cm_percentage, cmap='Blues', xticklabels=ACTIONS, yticklabels=ACTIONS, fmt='g')
+    ax = sns.heatmap(cm_percentage, xticklabels=ACTIONS, yticklabels=ACTIONS, cmap='Blues', fmt='g')
 
     ax.set_xticklabels(ax.get_xticklabels(), fontsize=8)
     ax.set_yticklabels(ax.get_yticklabels(), fontsize=8)
@@ -41,8 +41,9 @@ def plot_confusion_matrix(cm, num_classes, save_path):
     # return top_i_predictions
 
 def get_top5(outputs: np.ndarray, true_label) -> list[tuple[str, float]]:
-    sorted_indices = np.argsort(outputs)[::-1]
+    sorted_indices = np.argsort(outputs[0])[::-1]
     top5_indices   = sorted_indices[:5]
+    
     if true_label in top5_indices:
         return 1
     return 0
@@ -63,10 +64,15 @@ def test(test_dataset_path, model_path, series_size):
     all_labels  = []
     correct_top5  = 0
     with torch.no_grad():
+        i = 0 
         for inputs, labels in test_loader:
             inputs  = inputs.to(device)
             label   = labels[0].item()
-            all_labels.append(label)
+
+            # if(label >= 44): continue
+            print(i)
+            i += 1 
+            
             
             outputs = model(inputs)
             outputs = outputs.cpu().numpy()
@@ -75,7 +81,10 @@ def test(test_dataset_path, model_path, series_size):
             correct_top5 += top5
 
             pred    = np.argmax(outputs)
-            all_preds.append(pred)                           
+            # if(pred >= 44): continue
+            all_preds.append(pred)
+            all_labels.append(label)
+            
 
     print(f"Correct Top 5: {correct_top5/len(test_loader)}")
     
@@ -93,4 +102,4 @@ def test(test_dataset_path, model_path, series_size):
     print(f"F1-score: {f1:2f}")
 
     cm = confusion_matrix(all_labels, all_preds)
-    plot_confusion_matrix(cm, num_classes, os.path.dirname(model_path))
+    plot_confusion_matrix(cm, len(set(all_preds)), os.path.dirname(model_path))

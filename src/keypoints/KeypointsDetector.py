@@ -95,8 +95,13 @@ def extract_angles_distances_from_results(results: NamedTuple, mp: MediaPipeLoad
 # Turn on the webcam and run MediaPipe model inference
 # on each frame and draw keypoints
 def live_hands_tracking(window_size: tuple, mp: MediaPipeLoader) -> None:
-    vidcap = cv2.VideoCapture(0)
+    vidcap = cv2.VideoCapture("data/CrossDatasetVideos/acordar/1/usp_Acordar.mp4")
     vidcap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+    
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v') # 'mp4v' is the codec for .mp4 files
+    frame_width = int(vidcap.get(3))
+    frame_height = int(vidcap.get(4))
+    out = cv2.VideoWriter("detected.mp4", fourcc, 20.0, (frame_width, frame_height))
 
     show_feed = True
     while vidcap.isOpened():
@@ -105,6 +110,7 @@ def live_hands_tracking(window_size: tuple, mp: MediaPipeLoader) -> None:
     
         image, results = mediapipe_detection(frame, mp.model)
         image          = draw_landmarks(image if show_feed else np.zeros(image.shape, dtype=np.uint8), results, mp)
+        out.write(image)
         image          = utils_cv.resize_to(image, window_size)
         
         cv2.imshow('Live', image)
@@ -114,6 +120,7 @@ def live_hands_tracking(window_size: tuple, mp: MediaPipeLoader) -> None:
             case 't':
                 show_feed = not show_feed
         
+    out.release()    
     vidcap.release()
     cv2.destroyAllWindows()
 

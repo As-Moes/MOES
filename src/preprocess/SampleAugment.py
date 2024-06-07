@@ -67,7 +67,8 @@ def augment_frames(rng, frames, augment_factor):
     augmented_frames.append(frames)
     
     for i in range(augment_factor):
-        modified_frames = []
+        modified_frames      = []
+        modified_frames_flip = []
 
         doFlip = rng.integers(2)
         angle  = rng.uniform(-20, 20)
@@ -75,8 +76,9 @@ def augment_frames(rng, frames, augment_factor):
         ty     = rng.integers(-50, 51) 
         
         for frame in frames:
-            frame = cv2.flip(frame, 1) if doFlip else frame
-
+            # frame = cv2.flip(frame, 1) if doFlip else frame
+            
+            # for frame in flips:
             rows, cols = frame.shape[:2]
             rotation_matrix          = cv2.getRotationMatrix2D((cols / 2, rows / 2), angle, 1)
             rotated_frame            = cv2.warpAffine(frame, rotation_matrix, (cols, rows))
@@ -85,7 +87,22 @@ def augment_frames(rng, frames, augment_factor):
             translated_frame         = cv2.warpAffine(rotated_frame, translation_matrix, (cols, rows))
 
             modified_frames.append(translated_frame)
-       
+
+        for frame in frames:
+            frame = cv2.flip(frame, 1)
+            # flips = [original_frame, cv2.flip(original_frame, 1)]
+            
+            # for frame in flips:
+            rows, cols = frame.shape[:2]
+            rotation_matrix          = cv2.getRotationMatrix2D((cols / 2, rows / 2), angle, 1)
+            rotated_frame            = cv2.warpAffine(frame, rotation_matrix, (cols, rows))
+
+            translation_matrix       = np.float32([[1, 0, tx], [0, 1, ty]])
+            translated_frame         = cv2.warpAffine(rotated_frame, translation_matrix, (cols, rows))
+
+            modified_frames_flip.append(translated_frame)
+            
+        augmented_frames.append(modified_frames_flip) 
         augmented_frames.append(modified_frames)
     
     return augmented_frames
@@ -124,12 +141,17 @@ def process_videos(dataset_videos_path, dataset_frames_path, number_of_frames, s
         # Iterate over all videos 
         subfolder_index_dict = {} 
         print("Processing folder: ", folder_path)
+        c = 0
         for j in tqdm(range(len(videos_paths))):
             video_path      = videos_paths[j]
-            video_name      = videos_names[j] 
+            video_name      = videos_names[j]
+
+            # print(video_path)
 
             # Internal Numbering of each dataset folder
-            dataset_name    = video_name.split('_')[0]
+            # dataset_name    = video_name.split('_')[0]
+            dataset_name = "mc906"
+            
             if dataset_name not in subfolder_index_dict.keys():
                 subfolder_index_dict[dataset_name] = 0
             else:
@@ -140,11 +162,13 @@ def process_videos(dataset_videos_path, dataset_frames_path, number_of_frames, s
             frames          = sample_frames(rng, video_path, number_of_frames)
             resized_frames  = resize_frames(frames, size) 
             augmented_frames_list = augment_frames(rng, resized_frames, augment_factor)
-            if show: display_frames_list(augmented_frames_list) 
+            display_frames_list(augmented_frames_list) 
         
             # Save a set of augmented frames for each video 
             for frames in augmented_frames_list:
-                output_subfolder = os.path.join(output_folder, dataset_name, str(subfolder_index))
+                # output_subfolder = os.path.join(output_folder, dataset_name, str(subfolder_index))
+                output_subfolder = os.path.join(output_folder, dataset_name, str(c))
+                c += 1
                 if(os.path.exists(output_subfolder) == False): os.makedirs(output_subfolder)
                     
                 subfolder_index += 1 

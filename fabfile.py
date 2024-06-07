@@ -34,8 +34,8 @@ def ProcessVideos(c):
     dataset_frames_path = config['tasks']['ProcessVideos']['dataset_frames_path']  
     number_of_frames    = 15          # Number of frames to sample from each video
     size                = (640, 480)  # Size to resize the frames
-    augment_factor      = 20           # Number of augmented frames per original frame
-    random_state        = 77786983
+    augment_factor      = 4          # Number of augmented frames per original frame
+    random_state        = 77782983
     show                = False
     SampleAugment.process_videos(dataset_videos_path,dataset_frames_path,number_of_frames,size,augment_factor,random_state,show)
      
@@ -51,16 +51,16 @@ def ExtractKeypoints(c):
 def SplitDataset(c):
     dataset_path        = config['tasks']['SplitDataset']['dataset_path']
     series_size         = 15  # Number of frames Samples
-    train_percentage    = 0.6
-    val_percentage      = 0.2
-    test_percentage     = 0.2
+    train_percentage    = 0.8
+    val_percentage      = 0.19999
+    test_percentage     = 0.00001
     random_state        = 77796983
     DatasetLoader.split_dataset(dataset_path, train_percentage, val_percentage, test_percentage, series_size, random_state)
 
 @task 
 def kFold(c):
     dataset_path        = config['tasks']['SplitDataset']['dataset_path']
-    series_size         = 15  # Number of frames Samples
+    series_size         = 30  # Number of frames Samples
     train_percentage    = 0.8
     val_percentage      = 0.2
     random_state        = 77796983
@@ -80,7 +80,7 @@ def TrainModel(c):
 def TestModel(c):
     test_dataset_path  = config['tasks']['TestModel']['test_dataset_path']
     model_path         = config['tasks']['TestModel']['model_path'] 
-    series_size        = 15 
+    series_size        = 15
     Tester.test(test_dataset_path, model_path, series_size)
 
 #-------------------------------------------------------------------
@@ -109,4 +109,12 @@ def VideoSignDetect(c):
     sign_predictor = SignPredictor.SignPredictor(model_path)
     pred = sign_predictor.predict_from_video("data/Esquecer.mp4", frame_size, media_pipe_loader)
     print(sign_predictor.get_top_i_predictions(pred, 5))
- 
+
+from src.utils import utils_files
+@task
+def create(c):
+    path = "data/OurDatasetFilesCSV_15/angles_distances/full_dataset.csv"
+    # utils_files.remove_first_row_from_csv(path)
+    utils_files.add_row_to_csv(path, [49, 89])
+    
+

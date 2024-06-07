@@ -13,6 +13,8 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset, random_split
 
 from .LSTM import LSTMAmanda
+from .GRU import GRUAmanda
+from .ImprovedLSTM import ImprovedLSTM
 
 import matplotlib.pyplot as plt
 
@@ -34,11 +36,12 @@ def plot_loss(train_losses, val_losses, results_folder):
 def train(train_dataset_path, val_dataset_path, output_path, series_size):  
     # Hyperparameters
     batch_size    = 32
-    num_epochs    = 300
+    # 15 frames -> 300 epocas eh bom
+    num_epochs    = 500
     learning_rate = 0.0001
 
-    hidden_size   = 512
-    mask_prob     = 0.2
+    hidden_size   = 256
+    mask_prob     = 0.6
     dropout_prob  = 0.4
     l1_lambda     = 0.001
     
@@ -139,3 +142,4 @@ def train(train_dataset_path, val_dataset_path, output_path, series_size):
         f.write(f"learning_rate: {learning_rate}\n")
         f.write(f"optimizer: {str(type(optimizer))}\n")
         f.write(f"loss_func: {str(type(loss_func))}\n")
+        f.write(f"model: {str(type(model))}\n")
