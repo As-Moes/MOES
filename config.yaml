@@ -23,4 +23,4 @@ tasks:
     # test_dataset_path: "data/CrossDatasetFilesCSV_15/angles_distances/test.csv"
     # test_dataset_path: "data/CrossDatasetFilesCSV_15/angles_distances/kfold/origin_signbank/test.csv"
       # nice: 28 38
-    model_path: "runs/run55/model_best.pth"
+    model_path: "runs/run28/model_best.pth"
